@@ -19,7 +19,11 @@ public class CustomerService {
     public List<CustomerResponse> getAllCustomers() {
         List<CustomerEntity> customers = customerRepository.findAll();             // not quite sure on whether i should
         return customers.stream()                                                  // show users with isActive == false
-                .map(CustomerResponse::customerEntityToCustomerResponse).toList();
+                .map(CustomerResponse::customerEntityToCustomerResponse).toList(); // left version that hides unactive customers commented
+
+//        return customers.stream()
+//                .filter(item -> item.getIsActive()==true)
+//                .map(CustomerResponse::customerEntityToCustomerResponse).toList();
     }
 
     public CustomerResponse getCustomerById(long id) {
@@ -29,20 +33,22 @@ public class CustomerService {
     }
 
 
-    public CustomerResponse updateCustomer(long id, CustomerRequest request) {
-        CustomerEntity existingCustomer = customerRepository.findById(id)
+    public CustomerResponse updateCustomer(long id, CustomerRequest request) {          //update customer by id
+        CustomerEntity existingCustomer = customerRepository.findById(id)               //updating also handles "-" in received fields
                 .orElseThrow(() -> new IllegalArgumentException("Customer with id " + id + " not found"));
+
+        String phone = request.getPhone().replaceAll("-","");
 
         existingCustomer.setFullName(request.getFullName());
         existingCustomer.setEmail(request.getEmail());
-        existingCustomer.setPhone(request.getPhone());
+        existingCustomer.setPhone(phone);
 
         customerRepository.save(existingCustomer);
         return  CustomerResponse.customerEntityToCustomerResponse(customerRepository.save(existingCustomer));
     }
 
     @Transactional
-    public CustomerResponse saveCustomer(CustomerRequest request) {
+    public CustomerResponse saveCustomer(CustomerRequest request) {         //saving a customer into a DB
         String phone = request.getPhone().replaceAll("-","");
 
         CustomerEntity customerEntity = CustomerEntity.builder()

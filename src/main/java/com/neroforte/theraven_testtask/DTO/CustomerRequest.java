@@ -20,7 +20,7 @@ public class CustomerRequest {
     private String email;
 
     @Pattern(regexp = "^\\+?[0-9-]{6,14}$", message = "Phone must be 6-14 characters, containing digits and start with an optional plus sign.")
-    private String phone;
+    private String phone;       // left "-" included for random phone generation via postman. "-" are handled in service
 
 
 }
